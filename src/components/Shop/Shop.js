@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
-import { addToDb, getStoredCart } from '../../utilities/fakedb';
+import { addToDb } from '../../utilities/fakedb';
 import './Shop.css';
 import { Link } from 'react-router-dom';
+import useCarts from '../../hooks/useCarts';
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useCarts(products);
     // products to be rendered on the UI
     const [displayProducts, setDisplayProducts] = useState([]);
 
@@ -20,29 +21,13 @@ const Shop = () => {
             });
     }, []);
 
-    useEffect(() => {
-        if (products.length) {
-            const savedCart = getStoredCart();
-            const storedCart = [];
-            for (const key in savedCart) {
-                const addedProduct = products.find(product => product.key === key);
-                if (addedProduct) {
-                    const quantity = savedCart[key];
-                    addedProduct.quantity = quantity;
-                    storedCart.push(addedProduct);
-                }
-            }
-            setCart(storedCart);
-        }
-    }, [products])
-
     const handleAddToCart = (product) => {
         const exist = cart.find(pd => pd.key === product.key)
         let newCart = [];
         if (exist) {
             const rest = cart.filter(pd => pd.key !== product.key);
             exist.quantity = exist.quantity + 1;
-            newCart = [...rest, product];
+            newCart = [...rest, exist];
         }
         else {
             product.quantity = 1;

@@ -1,48 +1,29 @@
-// use local storage as your db for now
+//user wants to add a product
+//find the place to store the data
 const addToDb = id => {
-  const exists = getDb();
-  let shopping_cart = {};
-  if (!exists) {
-    shopping_cart[id] = 1;
+  const stored_item = getStoredDb();
+  if (id in stored_item) {
+    stored_item[id] += 1;
   }
   else {
-    shopping_cart = JSON.parse(exists);
-    if (shopping_cart[id]) {
-      const newCount = shopping_cart[id] + 1;
-      shopping_cart[id] = newCount;
-    }
-    else {
-      shopping_cart[id] = 1;
-    }
+    stored_item[id] = 1;
   }
-  updateDb(shopping_cart);
+  updateDb(stored_item);
 }
-
-const getDb = () => localStorage.getItem('shopping_cart');
+const removeFromDb = id => {
+  const savedCart = getStoredDb();
+  delete savedCart[id];
+  updateDb(savedCart)
+}
 
 const updateDb = cart => {
-  localStorage.setItem('shopping_cart', JSON.stringify(cart));
+  localStorage.setItem('shopping_cart', JSON.stringify(cart))
 }
 
-const removeFromDb = id => {
-  const exists = getDb();
-  if (!exists) {
+const clearFromDb = () => localStorage.removeItem('shopping_cart');
 
-  }
-  else {
-    const shopping_cart = JSON.parse(exists);
-    delete shopping_cart[id];
-    updateDb(shopping_cart);
-  }
+const getStoredDb = () => {
+  const exists = localStorage.getItem('shopping_cart');
+  return exists ? JSON.parse(exists) : {}
 }
-
-const getStoredCart = () => {
-  const exists = getDb();
-  return exists ? JSON.parse(exists) : {};
-}
-
-const clearTheCart = () => {
-  localStorage.removeItem('shopping_cart');
-}
-
-export { addToDb, removeFromDb, clearTheCart, getStoredCart }
+export { addToDb, getStoredDb, removeFromDb, clearFromDb };
